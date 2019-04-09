@@ -10,105 +10,141 @@ library(ggplot2)
 library(janitor)
 library(readxl)
 library(gt)
+library(plyr)
 
 # Download Spring 2019
+
 download.file(url = "https://registrar.fas.harvard.edu/files/fas-registrar/files/class_enrollment_summary_by_term_2.28.19.xlsx",
               destfile  = "~/Desktop/R.projects/Harvard-enrollment-graphic/spring_2019_data.xlsx",
               mode = "wb")  
 
 # Download Spring 2018
+
 download.file(url = "https://registrar.fas.harvard.edu/files/fas-registrar/files/class_enrollment_summary_by_term_03.06.18.xlsx",
               destfile  = "~/Desktop/R.projects/Harvard-enrollment-graphic/spring_2018_data.xlsx",
               mode = "wb")  
 
 # Download Spring 2017
+
 download.file(url = "http://registrar.fas.harvard.edu/files/fas-registrar/files/class_enrollment_summary_by_term_2017_03_07_final_0.xlsx",
               destfile  = "~/Desktop/R.projects/Harvard-enrollment-graphic/spring_2017_data.xlsx",
               mode = "wb")  
 
 # Download Spring 2016
+
 download.file(url = "http://registrar.fas.harvard.edu/files/fas-registrar/files/course_enrollment_statistics_0.xlsx",
               destfile  = "~/Desktop/R.projects/Harvard-enrollment-graphic/spring_2016_data.xlsx",
               mode = "wb")  
 
 # Fall Downloads
 
-
-# Download Fall 2018
-download.file(url = "https://registrar.fas.harvard.edu/files/fas-registrar/files/class_enrollment_summary_by_term_10.24.18.xlsx",
-              destfile  = "~/Desktop/R.projects/Harvard-enrollment-graphic/fall_2018_data.xlsx",
-              mode = "wb")  
-
-# Download Fall 2017
-download.file(url = "https://registrar.fas.harvard.edu/files/fas-registrar/files/class_enrollment_summary_by_term_10.20.17.xlsx",
-              destfile  = "~/Desktop/R.projects/Harvard-enrollment-graphic/fall_2017_data.xlsx",
-              mode = "wb")  
-
-# Download Fall 2016
-download.file(url = "http://registrar.fas.harvard.edu/files/fas-registrar/files/copy_of_class_enrollment_summary_by_term_10.06.2016.xlsx",
-              destfile  = "~/Desktop/R.projects/Harvard-enrollment-graphic/fall_2016_data.xlsx",
-              mode = "wb")  
-
-# Download Fall 2015
-download.file(url = "http://webdocs.registrar.fas.harvard.edu/reports/statistics/Fall_2015/CourseEnrollmentStatistics.xlsx",
-              destfile  = "~/Desktop/R.projects/Harvard-enrollment-graphic/fall_2015_data.xlsx",
-              mode = "wb")  
+# # Download Fall 2018
+# 
+# download.file(url = "https://registrar.fas.harvard.edu/files/fas-registrar/files/class_enrollment_summary_by_term_10.24.18.xlsx",
+#               destfile  = "~/Desktop/R.projects/Harvard-enrollment-graphic/fall_2018_data.xlsx",
+#               mode = "wb")
+# 
+# # Download Fall 2017
+# 
+# download.file(url = "https://registrar.fas.harvard.edu/files/fas-registrar/files/class_enrollment_summary_by_term_10.20.17.xlsx",
+#               destfile  = "~/Desktop/R.projects/Harvard-enrollment-graphic/fall_2017_data.xlsx",
+#               mode = "wb")
+# 
+# # Download Fall 2016
+# 
+# download.file(url = "http://registrar.fas.harvard.edu/files/fas-registrar/files/copy_of_class_enrollment_summary_by_term_10.06.2016.xlsx",
+#               destfile  = "~/Desktop/R.projects/Harvard-enrollment-graphic/fall_2016_data.xlsx",
+#               mode = "wb")
+# 
+# # Download Fall 2015
+# 
+# download.file(url = "http://webdocs.registrar.fas.harvard.edu/reports/statistics/Fall_2015/CourseEnrollmentStatistics.xlsx",
+#               destfile  = "~/Desktop/R.projects/Harvard-enrollment-graphic/fall_2015_data.xlsx",
+#               mode = "wb")
 # End of downloads.
 
 
 # Cleans downloads and saves in manageable files. 
+
 spring_2019 <- read_excel("spring_2019_data.xlsx", skip = 3) %>% 
   clean_names() %>% 
   filter(! is.na(course_name))
+
+colnames(spring_2019)[7] <- "u_grad.2019"
 
 spring_2018 <- read_excel("spring_2018_data.xlsx", skip = 3) %>% 
   clean_names() %>% 
   filter(! is.na(course_name))
 
+colnames(spring_2018)[7] <- "u_grad.2018"
+
 spring_2017 <- read_excel("spring_2017_data.xlsx", skip = 3) %>% 
   clean_names() %>% 
   filter(! is.na(course_name))
+
+colnames(spring_2017)[7] <- "u_grad.2017"
 
 spring_2016 <- read_excel("spring_2016_data.xlsx", skip = 0) %>% 
   clean_names() %>% 
   filter(! is.na(course))
 
-fall_2018 <- read_excel("fall_2018_data.xlsx", skip = 2) %>% 
-  clean_names() %>% 
-  filter(! is.na(course_name))
+colnames(spring_2016)[7] <- "u_grad.2016"
 
-fall_2017 <- read_excel("fall_2017_data.xlsx", skip = 3) %>% 
-  clean_names() %>% 
-  filter(! is.na(course_name))
+# Fall files
 
-fall_2016 <- read_excel("fall_2016_data.xlsx", skip = 3) %>% 
-  clean_names() %>% 
-  filter(! is.na(course_name))
-
-fall_2015 <- read_excel("fall_2015_data.xlsx", skip = 0) %>% 
-  clean_names() %>% 
-  filter(! is.na(course))
-
-
-
+# fall_2018 <- read_excel("fall_2018_data.xlsx", skip = 2) %>% 
+#   clean_names() %>% 
+#   filter(! is.na(course_name))
+# 
+# fall_2017 <- read_excel("fall_2017_data.xlsx", skip = 3) %>% 
+#   clean_names() %>% 
+#   filter(! is.na(course_name))
+# 
+# fall_2016 <- read_excel("fall_2016_data.xlsx", skip = 3) %>% 
+#   clean_names() %>% 
+#   filter(! is.na(course_name))
+# 
+# fall_2015 <- read_excel("fall_2015_data.xlsx", skip = 0) %>% 
+#   clean_names() %>% 
+#   filter(! is.na(course))
 
 # Delete the files to save space.
+
 fs::file_delete(c("spring_2019_data.xlsx",
                   "spring_2018_data.xlsx",
                   "spring_2017_data.xlsx",
-                  "spring_2016_data.xlsx",
-                  "fall_2018_data.xlsx",
-                  "fall_2017_data.xlsx",
-                  "fall_2016_data.xlsx",
-                  "fall_2015_data.xlsx"))
+                  "spring_2016_data.xlsx"))
+                  # "fall_2018_data.xlsx",
+                  # "fall_2017_data.xlsx",
+                  # "fall_2016_data.xlsx",
+                  # "fall_2015_data.xlsx"))
 ```
 
-```{r}
-joined_enrollment <- left_join(spring_2018, spring_2019, by = "course_id", suffix = c(".2018", ".2019")) %>% 
-  filter(! is.na(total.2019)) %>% 
-  mutate(enrollment_difference = (u_grad.2019 - u_grad.2018)) %>% 
-  select(course_title.2018, course_name.2018, u_grad.2018, u_grad.2019, enrollment_difference) %>% 
+```{r joined}
+# joined_enrollment_1 <- join_all(list(spring_2016,spring_2017,spring_2018, spring_2019), by='course_id', type='left') %>% 
+#   select(course_id, course_name, u_grad.2016, u_grad.2017, u_grad.2018, u_grad.2019)
+                               
+test_joined_enrollment <- left_join(spring_2018, spring_2019, by = "course_id") %>% 
+  filter(u_grad.2019 != 0 | u_grad.2018 != 0)
+  # filter(! is.na(total.2019)) %>%
+  # mutate(enrollment_difference_2018_2019 = (u_grad.2019 - u_grad.2018)) %>%
+  # select(course_id, course_title.2018, course_name.2018, u_grad.2018, u_grad.2019, enrollment_difference_2018_2019) %>%
+  # arrange(enrollment_difference_2018_2019)
+
+test_joined_enrollment_02 <- left_join(spring_2017, test_joined_enrollment, by = "course_id") %>% 
+  filter(u_grad.2017 != 0)
+
+test_joined_enrollment_03 <- left_join(spring_2016, test_joined_enrollment_02, by = "course_id") %>% 
+  filter(u_grad.2016 != 0 & u_grad.2017 != 0 & u_grad.2018 != 0 & u_grad.2019 != 0) %>% 
+  filter(! is.na(u_grad.2019)) %>% 
+  filter(! is.na(u_grad.2018)) %>% 
+  filter(! is.na(u_grad.2017)) %>% 
+  filter(! is.na(u_grad.2016)) %>% 
+  select(course, course_title, course_name, course_id, u_grad.2016, u_grad.2017, u_grad.2018, u_grad.2019) %>% 
   arrange(desc(u_grad.2019))
+  
+ 
 
 
+  
 ```
