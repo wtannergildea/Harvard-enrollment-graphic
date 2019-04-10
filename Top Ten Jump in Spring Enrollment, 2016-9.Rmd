@@ -1,9 +1,14 @@
 ---
-title: "Spring Harvard Courses with Largest Jumps in Undergrad Enrollment"
+title: "Spring Harvard Courses with Largest Jumps in Undergrad Enrollment, 2016-2019"
 author: "Tanner Gildea"
 date: "4/9/2019"
 output: html_document
 ---
+
+Using archived Harvard enrollment data, I have isolated the ten spring courses that have experienced the largest absolute increase in undergraduate enrollment since 2016. President Bacow, you should pay particular attention to departmental support and funding for these courses. These courses are at risk of failing to adequately meet rising undergraduate demand.   
+  
+
+
 
 ```{r setup, include = FALSE, echo = FALSE, results = "asis", message=FALSE}
 
@@ -192,9 +197,11 @@ gathered <- final_join %>%
 # count of undergrads. 
 
 ggplot(gathered, aes(x = course_id, y = course_title, size = count, color = course_name)) +  
-  geom_point(alpha = .7, show.legend = TRUE) +
+  geom_point(alpha = .7, 
+             show.legend = TRUE) +
   
-  scale_size(range = c(0,10)) +
+  scale_size(breaks = c(10, 50, 100, 200),
+             labels = expression("10 students", "50 students", "100 students", "200 students")) +
   
   labs(title = "Spring Harvard Courses with the Largest Jumps in Enrollment",
        subtitle = "Between 2016 and 2019" ,
@@ -206,7 +213,7 @@ ggplot(gathered, aes(x = course_id, y = course_title, size = count, color = cour
   
   guides(size = guide_legend(title="Number of Undergrads")) +
   
-  theme_minimal() +
+  theme_solarized() +
 
   theme(legend.position = "right")
 ```
