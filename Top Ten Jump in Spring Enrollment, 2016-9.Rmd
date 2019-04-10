@@ -1,5 +1,5 @@
 ---
-title: "Top 10 Jump In Spring Undergrad Enrollment"
+title: "Spring Harvard Courses with Largest Jumps in Undergrad Enrollment"
 author: "Tanner Gildea"
 date: "4/9/2019"
 output: html_document
@@ -16,6 +16,9 @@ library(gt)
 library(plyr)
 library(gganimate)
 library(ggthemes)
+
+# First I download the current and archived enrollment data from the FAS
+# registrar's office. I download directly from the url and save as .xlsx files.
 
 # Download Spring 2019
 
@@ -41,7 +44,9 @@ download.file(url = "http://registrar.fas.harvard.edu/files/fas-registrar/files/
               destfile  = "~/Desktop/R.projects/Harvard-enrollment-graphic/spring_2016_data.xlsx",
               mode = "wb")  
 
-# Fall Downloads
+# The following is a commented section of code if I wanted to download the fall 
+# enrollment data and create a similar visualization for Fall 2015 - 2018. Currently,
+# I do not, so I leave it as comments.
 
 # # Download Fall 2018
 # 
@@ -69,7 +74,10 @@ download.file(url = "http://registrar.fas.harvard.edu/files/fas-registrar/files/
 # End of downloads.
 
 
-# Cleans downloads and saves in manageable files. 
+# With the spring files downloaded, I clean each download and save into my global 
+# environment. I also rename the column in each file that corresponds to
+# the levels of undergraduate course enrollment, so that I can differentiate between
+# years.
 
 spring_2019 <- read_excel("spring_2019_data.xlsx", skip = 3) %>% 
   clean_names() %>% 
@@ -95,7 +103,7 @@ spring_2016 <- read_excel("spring_2016_data.xlsx", skip = 0) %>%
 
 colnames(spring_2016)[7] <- "u_grad.2016"
 
-# Fall files
+# Again, here is similar code if I want to analyze fall data in the future.
 
 # fall_2018 <- read_excel("fall_2018_data.xlsx", skip = 2) %>% 
 #   clean_names() %>% 
@@ -113,7 +121,9 @@ colnames(spring_2016)[7] <- "u_grad.2016"
 #   clean_names() %>% 
 #   filter(! is.na(course))
 
-# Delete the files to save space.
+
+# With the files downloaded, cleaned and saved into the environment, I can delete the 
+# originals.
 
 fs::file_delete(c("spring_2019_data.xlsx",
                   "spring_2018_data.xlsx",
@@ -126,18 +136,22 @@ fs::file_delete(c("spring_2019_data.xlsx",
 ```
 
 ```{r joined, echo = FALSE, message = FALSE}
-# joined_enrollment_1 <- join_all(list(spring_2016,spring_2017,spring_2018, spring_2019), by='course_id', type='left') %>% 
-#   select(course_id, course_name, u_grad.2016, u_grad.2017, u_grad.2018, u_grad.2019)
-                               
+# Now, I need to merge all four files into the same data frame. I probably could have
+# use the bindrows() function to speed up the process, but I wanted to practice 
+# using the join functions and the gather function.
+
+# On my first join, I combine the data from 2018 and 2019. My second join combines this 
+# with the data from 2016, and my final join combines all of that with the data from 
+# 2016. I attempted to use a join_all() function to do it at the same time,
+# but I was not receiving the same output. 
+
 join_01 <- left_join(spring_2018, spring_2019, by = "course_id") %>% 
   filter(u_grad.2019 != 0 | u_grad.2018 != 0)
-  # filter(! is.na(total.2019)) %>%
-  # mutate(enrollment_difference_2018_2019 = (u_grad.2019 - u_grad.2018)) %>%
-  # select(course_id, course_title.2018, course_name.2018, u_grad.2018, u_grad.2019, enrollment_difference_2018_2019) %>%
-  # arrange(enrollment_difference_2018_2019)
 
 join_02 <- left_join(spring_2017, join_01, by = "course_id") %>% 
   filter(u_grad.2017 != 0)
+
+# In the final join, I also apply a number of filters to exclude courses that did not have consistent enrollment over each of the four years.
 
 final_join <- left_join(spring_2016, join_02, by = "course_id") %>% 
   filter(u_grad.2016 != 0 & u_grad.2017 != 0 & u_grad.2018 != 0 & u_grad.2019 != 0) %>% 
@@ -146,6 +160,12 @@ final_join <- left_join(spring_2016, join_02, by = "course_id") %>%
   filter(! is.na(u_grad.2017)) %>% 
   filter(! is.na(u_grad.2016)) %>% 
   select(course, course_title, course_name, course_id, u_grad.2016, u_grad.2017, u_grad.2018, u_grad.2019) %>% 
+  
+# Here I create a new variable large_diff, which will determine which courses had the
+# highest jump in undergraduate enrollment between the years 2016 and 2019. I'm 
+# specifically interested in the non-duplicated (some sections, tutorials etc appear 
+# multiple times) top ten. 
+  
   mutate(large_diff =  (u_grad.2019 - u_grad.2016)) %>% 
   arrange(desc(large_diff)) %>% 
   distinct(course, .keep_all = TRUE) %>% 
@@ -153,8 +173,13 @@ final_join <- left_join(spring_2016, join_02, by = "course_id") %>%
 ```
 
 ```{r gather, echo = FALSE, message = FALSE}
+# Here I rename the appropriate columns for when I will need to graph them. There is
+# likely a cleaner way to do this in the visualization code, so that I am not 
+# actually manipulating the data frame. 
 
 colnames(final_join)[5:8] <- c("2016", "2017", "2018", "2019")
+
+# Here I use the gather() function to compress my columns and make them longer, so that I can take each course and plot across all four years in the subsequent section.
 
 gathered <- final_join %>% 
   gather(key = "course_id", value = "count", "2016", "2017", "2018", "2019") %>% 
@@ -162,11 +187,12 @@ gathered <- final_join %>%
 ```
 
 ```{r first_plot, echo = FALSE, message = FALSE}
-
+# Now, I need to visualize the data. I want to show the change in undergraduate
+# course enrollment over time, with the size of the point corresponding to the
+# count of undergrads. 
 
 ggplot(gathered, aes(x = course_id, y = course_title, size = count, color = course_name)) +  
   geom_point(alpha = .7, show.legend = TRUE) +
-  
   
   scale_size(range = c(0,10)) +
   
@@ -174,7 +200,7 @@ ggplot(gathered, aes(x = course_id, y = course_title, size = count, color = cour
        subtitle = "Between 2016 and 2019" ,
        x = "Year",
        y = "Official FAS Course Title",
-       caption = "Source: Harvard Registrar") +
+       caption = "Source: Harvard Registrar Enrollment Data") +
   
   guides(color = guide_legend(title="Full Course Name")) +
   
