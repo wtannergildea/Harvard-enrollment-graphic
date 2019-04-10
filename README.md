@@ -7,8 +7,6 @@ For the published visualization, please visit: http://rpubs.com/wtannergildea/ha
 The original data is available here: 
 https://registrar.fas.harvard.edu/faculty-staff/courses/enrollment/archived-course-enrollment-reports
 
-and 
-
-https://registrar.fas.harvard.edu/news/final-spring-2017-course-enrollment-statistics.
+and https://registrar.fas.harvard.edu/news/final-spring-2017-course-enrollment-statistics.
 
 
