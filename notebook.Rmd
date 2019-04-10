@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include = FALSE, echo = FALSE, results = "asis"}
@@ -150,22 +152,32 @@ final_join <- left_join(spring_2016, join_02, by = "course_id") %>%
 ```
 
 ```{r gather}
+
+colnames(final_join)[5:8] <- c("2016", "2017", "2018", "2019")
+
 gathered <- final_join %>% 
-  gather(key = "course", value = "count", u_grad.2016, u_grad.2017, u_grad.2018, u_grad.2019) %>% 
-  select( - large_diff) %>% 
+  gather(key = "course_id", value = "count", "2016", "2017", "2018", "2019") %>% 
   arrange(course_title)
 ```
 
-```{r plot}
+```{r first_plot}
 
 
-ggplot(gathered, aes(x = course, y = course_title, size = count, color = course_title)) +  
+ggplot(gathered, aes(x = course_id, y = course_title, size = count, color = course_name)) +  
   geom_point(alpha = .7, show.legend = TRUE) +
+  
+  
+  scale_size(range = c(0,10)) +
+  
   labs(title = "Spring Harvard Courses with the Largest Jumps in Enrollment",
        subtitle = "Between 2016 and 2019" ,
        x = "Year",
-       y = "Course Title",
+       y = "Official FAS Course Title",
        caption = "Source: Harvard Registrar") +
+  
+  guides(color = guide_legend(title="Full Course Name")) +
+  
+  guides(size = guide_legend(title="Number of Undergrads")) +
   
   theme_minimal() +
 
